@@ -2,38 +2,45 @@
  * @description       : 
  * @author            : flaviomelo.sfdev@gmail.com
  * @group             : 
- * @last modified on  : 02-23-2026
+ * @last modified on  : 02-24-2026
  * @last modified by  : flaviomelo.sfdev@gmail.com
 **/
 public with sharing class ContactTriggerHelper {
     public static void prevenirEmailDuplicado(List<Contact> contatos)
     {
-        List<String> novosEmails = new List<String>();
-        List<Contact> novosContatos = new List<Contact>();
+        set<String> novosEmails = new set<String>();
+        set<String> emailExistentes = new set<String>();
 
-        for(Contact novo : contatos)
+        for(Contact contato : contatos)
         {
-            novosEmails.add(novo.Email);
-        }
-        List<Contact> contatosPrevios = [SELECT Email FROM Contact where Email in : novosEmails];
-        for(Contact contato : contatos){
-            Boolean emailDuplicado = false;
-            for(Contact contatoPrevio : contatosPrevios)
+            if(contato.Email != NULL)
             {
-                if(contato.Email == contatoPrevio.Email)
-                {
-                    contato.addError('email já cadastrado');
-                    emailDuplicado = true;
-                } else {
-                    emailDuplicado = false;
-                }
-            }
-            if(emailDuplicado == false)
-            {
-                novosContatos.add(contato);
+                novosEmails.add(contato.Email);
             }
         }
 
-        Database.SaveResult[] result = Database.insert(novosContatos, false, AccessLevel.USER_MODE);
+        if (Schema.sObjectType.Contact.isAccessible()) {
+            for (Contact repetido : [
+                SELECT Email
+                FROM Contact
+                WHERE Email IN :novosEmails
+                WITH SECURITY_ENFORCED
+            ]) {
+                emailExistentes.add(repetido.Email);
+            }
+        } else {
+            for (Contact contato : contatos) {
+                contato.addError('Sem permissão de leitura em Contato para validação de e-mail.');
+            }
+            return;
+        }
+
+        for(Contact contato : contatos)
+        {
+            if(emailExistentes.contains(contato.Email))
+            {
+                contato.addError('Email já cadastrado.');
+            }
+        }
     }
 }
