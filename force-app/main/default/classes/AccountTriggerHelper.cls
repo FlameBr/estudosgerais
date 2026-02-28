@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 02-22-2026
+ * @last modified on  : 02-27-2026
  * @last modified by  : flaviomelo.sfdev@gmail.com
 **/
 public without sharing class AccountTriggerHelper{
@@ -40,6 +40,21 @@ public without sharing class AccountTriggerHelper{
 		{
 			Database.SaveResult[] results = Database.insert(contatosParaInserir, false, AccessLevel.USER_MODE);
 			System.debug('Utilização de DML: ' + Limits.getLimitDmlStatements() + ' de ' + Limits.getLimitDmlStatements());
+		}
+	}
+
+	public static void editadoHaMenosDeUmMin(List<Account> contas, Map<Id,Account> contasAntes)
+	{
+		for(Account conta : contas)
+		{
+			Account anterior = contasAntes.get(conta.Id);
+			System.debug('hora da edição: ' + anterior.LastModifiedDate.minute() + ' hora atual: ' + System.now().minute());
+			if(anterior.LastModifiedDate.minute() < System.now().minute() - 2)
+			{
+				System.debug('Essa porra chegou aqui.');
+				conta.addError('Está conta foi modificada há menos de 1 minuto.');
+			}
+			
 		}
 	}
 }
