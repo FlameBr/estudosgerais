@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 02-27-2026
+ * @last modified on  : 02-28-2026
  * @last modified by  : flaviomelo.sfdev@gmail.com
 **/
 public without sharing class AccountTriggerHelper{
@@ -45,6 +45,7 @@ public without sharing class AccountTriggerHelper{
 
 	public static void editadoHaMenosDeUmMin(List<Account> contas, Map<Id,Account> contasAntes)
 	{
+		System.debug('entrou na classe');
 		for(Account conta : contas)
 		{
 			Account anterior = contasAntes.get(conta.Id);
